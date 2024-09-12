@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Teams</title>
+    <link rel="stylesheet" href="event.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .team-column {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="image/fan2play.png" alt="Logo" class="logo">
+        </div>
+        <h1 class="text-center mb-4">Cricket Teams</h1>
+        
+        <div class="mb-3">
+            <a href="https://backend0wcgjtl51w.fan2play.com/app/#/events" target="_blank" class="text-center mb-4">Get the Events & Status UID </a>
+            <hr>
+            <input type="text" id="matchId" class="form-control" placeholder="Enter Stats Uid to check the lineup players" required="true">
+            
+            <button id="fetchButton" class="btn btn-primary mt-2">Fetch Teams</button>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class="text-center">Team A</h3>
+                <div id="teamA" class="team-column"></div>
+            </div>
+            <div class="col-md-6">
+                <h3 class="text-center">Team B</h3>
+                <div id="teamB" class="team-column"></div>
+            </div>
+        </div>
+       
+    </div>
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModal">&times;</span>
+            <h2>Error</h2>
+            <p id="errorMessage">An error occurred. Please try again later.</p>
+        </div>
+    </div>
+
+
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            const matchId = document.getElementById('matchId').value;
+            const apiUrl = `https://rest.entitysport.com/v2/matches/${matchId}/squads?token=f46f63dba76b720fbacf1c67055f7295`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const teamA = data.response.teama.squads.filter(player => player.playing11 === 'true');
+                    const teamB = data.response.teamb.squads.filter(player => player.playing11 === 'true');
+
+                    const teamAContainer = document.getElementById('teamA');
+                    const teamBContainer = document.getElementById('teamB');
+
+                    teamAContainer.innerHTML = '';
+                    teamBContainer.innerHTML = '';
+
+                    teamA.forEach(player => {
+                      //  teamAContainer.innerHTML += `<p><strong>${player.name}</strong> (${player.role})</p>`;
+                        teamAContainer.innerHTML += `
+                   
+
+                    <div class="player-details">
+                    <p class="player-id">Player ID: ${player.player_id}</p>
+                     <p class="player-name"><strong>${player.name}</strong> (${player.role})</p>
+                    <p class="substitute-status">Substitute: ${player.substitute}</p>
+                    <p class="out-status">Out: ${player.out}</p>
+                    <p class="in-status">In: ${player.in}</p>
+                    <p class="playing11-status"><strong>Playing11: ${player.playing11}</strong></p>
+                   
+                    </div>
+
+                        `;
+                    });
+
+                    teamB.forEach(player => {
+                        teamBContainer.innerHTML += ` 
+                        
+                        <div class="player-details">
+                    <p class="player-id">Player ID: ${player.player_id}</p>
+                     <p class="player-name"><strong>${player.name}</strong> (${player.role})</p>
+                    <p class="substitute-status">Substitute: ${player.substitute}</p>
+                    <p class="out-status">Out: ${player.out}</p>
+                    <p class="in-status">In: ${player.in}</p>
+                    <p class="playing11-status"><strong>Playing11: ${player.playing11}</strong></p>
+                   
+                    </div>
+                        `;
+                    });
+                })
+                .catch(error => {
+               // console.error('Error fetching data:', error);
+                showModal('Unable to fecth data from the feed! Either uid is incorrect or Lineups not out ');
+            });
+        });
+
+        //function to show the model
+        function showModal(message) {
+        const modal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeModal = document.getElementById('closeModal');
+
+        // Set the error message
+        errorMessage.textContent = message;
+
+        // Display the modal
+        modal.style.display = 'block';
+
+        // Close the modal when the user clicks on the close button
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+        };
+
+        // Close the modal if the user clicks anywhere outside the modal content
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        
+    }
+
+
+    
+    </script>
+</body>
+</html>
